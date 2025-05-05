@@ -160,7 +160,7 @@ def findBestPlane(face_data, candidate_planes):
         if best is None or total_err < best_score:
             best_score, best = total_err, plane
     
-    return best
+    return best, best_score
 
 
 if __name__ == "__main__":
@@ -176,13 +176,18 @@ if __name__ == "__main__":
     print("Total Candidate Planes Found:", len(candidate_planes_list))
 
     #best plane
-    best_plane = findBestPlane(face_data, candidate_planes_list)
-    print("Best Plane Found:", best_plane)
+    symmetry_threshold = 0.1
+    best_plane, best_score = findBestPlane(face_data, candidate_planes_list)
     
     #Visualization
     display, start_display, _, _ = init_display()
     display.DisplayShape(shape, update=True)
 
-    visualizeCandidatePlanes(display, [best_plane], count=11)
+    if best_score <= symmetry_threshold:
+        visualizeCandidatePlanes(display, [best_plane], count=1)
+        print(f"Best Plane Error: {best_score:.4f}")
+        print(f"Details: {best_plane}")
+    else:
+        print(f"Error: {best_score}. No mirror plane within threshold.")
 
     start_display()
