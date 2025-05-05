@@ -54,18 +54,30 @@ def normalize(vec):
 def midpoint(p1, p2):
     return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2, (p1[2] + p2[2]) / 2)
 
-def candidatePlanes(face_properties):
+def candidatePlanes(face_properties, area_tol=0.9, normal_tol=0.8):
     candidate_planes = []
+    n = len(face_properties)
 
-    for i in range(len(face_properties)):
-        for j in range(i+1, len(face_properties)):
-            f1 = face_properties[i]
-            f2 = face_properties[j]
+    for i in range(n):
+        ci, ni, Ai = face_properties[i]['center'], face_properties[i]['normal'], face_properties[i]['area']
+        
+        for j in range(i+1,n):
+            cj,nj, Aj = face_properties[j]['center'], face_properties[j]['normal'], face_properties[j]['area']
+            
+            #1. area ratio check
+            if min(Ai, Aj) / max(Ai, Aj) < area_tol:
+                continue
+            
+            #2. normal alignment check
+            if abs(np.dot(ni, nj )) < normal_tol:
+                continue
 
-            center1 = f1['center']
-            center2 = f2['center']
-            mid = midpoint(center1, center2)
-            nvec = normalize(vectorBetween(center1, center2))
+            nvec = normalize(vectorBetween(ci, cj))            
+
+            if not bisectNormals(ni, nj, nvec):
+                continue
+
+            mid = midpoint(ci, cj)            
 
             plane = {
                 'face1_index': i,
@@ -94,6 +106,11 @@ def reflectPoint(point, plane_point, plane_normal):
 
 def reflectVector(vec, plane_normal):
     return vec - 2 * np.dot(vec, plane_normal) * plane_normal
+
+def bisectNormals(n1,n2, plane_normal, tol = 1e-2):
+    n1 = np.array(n1)
+    n2 = np.array(n2)
+    return np.abs(np.dot(n1,plane_normal) + np.dot(n2,plane_normal)) < tol
 
 def PairwiseMatchingScore(face_data, plane):
     pts = np.array([f['center'] for f in face_data])
@@ -147,7 +164,7 @@ def findBestPlane(face_data, candidate_planes):
 
 
 if __name__ == "__main__":
-    filename= "GearShaft.step"
+    filename= "JAWSLIDING.step"
     shape = readStepFile(filename)
 
     # Get face properties
