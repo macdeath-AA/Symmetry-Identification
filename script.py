@@ -149,20 +149,30 @@ def PairwiseMatchingScore(face_data, plane):
         'avg_area_error': area_error / M
     }
 
-def findBestPlane(face_data, candidate_planes):
-    best, best_score = None, None
+def uniqueTopPlanes(face_data, candidate_planes, max_planes, threshold, norm_tol):
+    scored = []
 
     for plane in candidate_planes:
         errs = PairwiseMatchingScore(face_data, plane)
-
         total_err = errs['avg_dist_error'] + errs['avg_norm_error'] + errs['avg_area_error']
+        scored.append((total_err, plane))
+    scored.sort(key=lambda x: x[0])
 
-        if best is None or total_err < best_score:
-            best_score, best = total_err, plane
+    unique = []
+    for err, pl in scored:
+        if err > threshold:
+            break
+
+        n = np.array(pl['plane_normal'])
+
+        if all(abs(np.dot(n, np.array(p['plane_normal']))) < norm_tol for p in unique):
+            unique.append(pl)
+            if len(unique) == max_planes:
+                break
     
-    return best, best_score
-
-
+    return [(p,e) for e,p in scored if p in unique]
+       
+        
 if __name__ == "__main__":
     filename= "JAWSLIDING.step"
     shape = readStepFile(filename)
@@ -177,17 +187,21 @@ if __name__ == "__main__":
 
     #best plane
     symmetry_threshold = 0.1
-    best_plane, best_score = findBestPlane(face_data, candidate_planes_list)
     
+    chosen = uniqueTopPlanes(
+        face_data,candidate_planes_list,
+        max_planes = 5,
+        threshold = symmetry_threshold,
+        norm_tol = 0.1
+    )
     #Visualization
     display, start_display, _, _ = init_display()
     display.DisplayShape(shape, update=True)
 
-    if best_score <= symmetry_threshold:
-        visualizeCandidatePlanes(display, [best_plane], count=1)
-        print(f"Best Plane Error: {best_score:.4f}")
-        print(f"Details: {best_plane}")
-    else:
-        print(f"Error: {best_score}. No mirror plane within threshold.")
+    for idx, (pl, err) in enumerate(chosen, start=1):
+        print(f"Plane {idx}: Error = {err:.4f}\nDetails: {pl}")
+        visualizeCandidatePlanes(display,
+        [pl for pl,_ in chosen],
+        count= len(chosen))
 
     start_display()
