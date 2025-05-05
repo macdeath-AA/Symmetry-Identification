@@ -4,18 +4,24 @@ This project detects significant symmetry in 3D models (specifically STEP files)
 ## Installation
 Install the required Python libraries: OCC, numpy, SciPy, FreeCAD (optional)
 To install [pyhtonocc](https://github.com/tpaviot/pythonocc-core) follow these steps.
-
-``conda create --name=pyoccenv python=3.9
+<pre>
+   ```conda create --name=pyoccenv python=3.9
 conda activate pyoccenv
-conda install -c conda-forge pythonocc-core=7.9.0``
+conda install -c conda-forge pythonocc-core=7.9.0```
+</pre>
 
 To install the required Python libraries, run the following command in your environment. 
 
-``pip install numpy scipy``
+<pre>
+   ```pip install numpy scipy```
+</pre>
 
 ## Usage
 You can run the script directly from the command line using Python.
-`` python script.py``
+<pre>
+   ``` python script.py```
+</pre>
+
 Make sure the STEP files are in the same directory as ``script.py``
 
 ## Methodology Overview
