@@ -6,22 +6,23 @@ Install the required Python libraries: OCC, numpy, SciPy, FreeCAD (optional)
 To install [pyhtonocc](https://github.com/tpaviot/pythonocc-core) follow these steps.
 
    ```
-   conda create --name=pyoccenv python=3.9
+conda create --name=pyoccenv python=3.9
 conda activate pyoccenv
 conda install -c conda-forge pythonocc-core=7.9.0
    ```
 
 To install the required Python libraries, run the following command in your environment. 
 
-<pre>
-   ```pip install numpy scipy```
-</pre>
+```
+pip install numpy scipy
+```
 
 ## Usage
 You can run the script directly from the command line using Python.
-<pre>
-   ``` python script.py```
-</pre>
+
+``` 
+python script.py
+```
 
 Make sure the STEP files are in the same directory as ``script.py``
 
